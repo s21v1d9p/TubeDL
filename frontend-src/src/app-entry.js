@@ -50,6 +50,7 @@ function setLoading(isLoading, label) {
   loading.hidden = !isLoading;
   if (label) loadingLabel.textContent = label;
   fetchBtn.disabled = isLoading;
+  input.disabled = isLoading;
 }
 
 function setButtonsDisabled(disabled) {
@@ -187,19 +188,29 @@ function renderResult(info) {
 }
 
 let submitToken = 0;
+let inFlightInput = null;
 
 async function handleSubmit(rawInput) {
-  const myToken = ++submitToken;
-
-  clearError();
-  result.hidden = true;
-  hideProgress();
-
   const trimmed = (rawInput || '').trim();
   if (!trimmed) {
+    clearError();
+    result.hidden = true;
+    hideProgress();
     showError('Paste a YouTube link first.');
     return;
   }
+
+  // If this exact input is already being fetched (e.g. a deep-link
+  // auto-submit and a manual Fetch click landing on the same video),
+  // don't start a second, redundant request -- just let the one already
+  // in flight finish and update the UI.
+  if (inFlightInput === trimmed) return;
+  inFlightInput = trimmed;
+
+  const myToken = ++submitToken;
+  clearError();
+  result.hidden = true;
+  hideProgress();
 
   setLoading(true, 'Loading video info…');
   try {
@@ -212,6 +223,7 @@ async function handleSubmit(rawInput) {
     showError(err?.userMessage || 'Could not load this video. Please check the link and try again.');
   } finally {
     if (myToken === submitToken) setLoading(false);
+    if (inFlightInput === trimmed) inFlightInput = null;
   }
 }
 
