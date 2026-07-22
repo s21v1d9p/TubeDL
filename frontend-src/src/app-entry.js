@@ -186,7 +186,11 @@ function renderResult(info) {
   result.hidden = false;
 }
 
+let submitToken = 0;
+
 async function handleSubmit(rawInput) {
+  const myToken = ++submitToken;
+
   clearError();
   result.hidden = true;
   hideProgress();
@@ -200,12 +204,14 @@ async function handleSubmit(rawInput) {
   setLoading(true, 'Loading video info…');
   try {
     const info = await getVideoFormats(trimmed);
+    if (myToken !== submitToken) return; // a newer submission started meanwhile -- discard this one
     renderResult(info);
   } catch (err) {
+    if (myToken !== submitToken) return;
     console.error('[TubeDL] getVideoFormats failed:', err);
     showError(err?.userMessage || 'Could not load this video. Please check the link and try again.');
   } finally {
-    setLoading(false);
+    if (myToken === submitToken) setLoading(false);
   }
 }
 
