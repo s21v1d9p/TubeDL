@@ -32,6 +32,9 @@ jobs:
         working-directory: frontend-src
         run: npm run build
 
+      - name: Cache-bust static assets with this commit's SHA
+        run: sed -i "s/__CACHE_BUST__/${{ github.sha }}/g" frontend/index.html
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
