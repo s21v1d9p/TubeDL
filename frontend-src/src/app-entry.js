@@ -12,7 +12,7 @@ import { preloadMuxer, muxVideoAudio } from './mux.js';
 // Configuration -- update RELAY_BASE_URL after deploying the Cloudflare
 // Worker relay (see worker/README.md). Everything else needs no editing.
 // ---------------------------------------------------------------------------
-const RELAY_BASE_URL = 'https://tubedl-relay.YOUR-SUBDOMAIN.workers.dev';
+const RELAY_BASE_URL = 'https://tubedl-relay.s21v1d9p.workers.dev';
 configureRelay(RELAY_BASE_URL);
 
 // ---------------------------------------------------------------------------

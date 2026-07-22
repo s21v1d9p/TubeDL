@@ -83,27 +83,59 @@ function playabilityError(info) {
 }
 
 /**
+ * `LOGIN_REQUIRED - Sign in to confirm you're not a bot` is a distinct,
+ * pattern-matchable case from LOGIN_REQUIRED's other meanings (a genuinely
+ * private/age-restricted video) -- confirmed to be an *intermittent*
+ * YouTube-side bot-detection check against the relay's IP (retrying with a
+ * completely fresh PoToken/BotGuard session reliably clears it; the same
+ * video succeeds outright on a plain retry most of the time). Worth one
+ * automatic retry before surfacing an error to the user.
+ */
+function isTransientBotCheck(err) {
+  return /sign in to confirm you.{0,5}re not a bot/i.test(err?.message || '');
+}
+
+/**
  * Resolves a canonical YouTube video URL (or bare video ID) into metadata and
  * a list of downloadable format tiers.
  * @param {string} canonicalUrlOrVideoId
  */
 export async function getVideoFormats(canonicalUrlOrVideoId) {
   const videoId = extractVideoId(canonicalUrlOrVideoId);
+  const yt = await getInnertubeSession().catch((err) => {
+    throw wrapError(err, 'Could not start a YouTube session. Please try again.');
+  });
 
-  let yt, info;
+  async function fetchInfo(poToken) {
+    const info = await yt.getBasicInfo(videoId, poToken ? { po_token: poToken } : undefined);
+    const err = playabilityError(info);
+    if (err) throw err;
+    return info;
+  }
+
+  let info;
   try {
-    yt = await getInnertubeSession();
-    // Fire-and-forget: hides BotGuard's ~1-2s VM-startup latency behind
-    // whatever the caller does between listing formats and picking one to
-    // download. Not needed for listing itself (proven safe without it).
-    getVideoPoToken(yt, videoId);
-    info = await yt.getBasicInfo(videoId);
+    // Historically fire-and-forget here (hiding BotGuard's ~1-2s VM-startup
+    // latency), since a token wasn't needed just to list formats when
+    // requests came from a normal residential IP. Once the CORS relay is a
+    // Cloudflare Worker, though, YouTube treats Workers' shared egress IPs
+    // with much more suspicion -- confirmed empirically: without awaiting a
+    // real token first, basic info requests can get rejected with
+    // `playability_status: LOGIN_REQUIRED - Sign in to confirm you're not a
+    // bot` from a deployed Worker relay (this did not happen when testing
+    // against `wrangler dev` on a local machine's own IP). Awaiting it here
+    // costs the same ~1-2s either way, just earlier.
+    const poToken = await getVideoPoToken(yt, videoId);
+    try {
+      info = await fetchInfo(poToken);
+    } catch (err) {
+      if (!isTransientBotCheck(err)) throw err;
+      const freshToken = await refreshVideoPoToken(yt, videoId);
+      info = await fetchInfo(freshToken);
+    }
   } catch (err) {
     throw wrapError(err, 'Could not load this video. It may be private, deleted, or region-restricted.');
   }
-
-  const playabilityErr = playabilityError(info);
-  if (playabilityErr) throw playabilityErr;
 
   const streamingData = info.streaming_data || {};
   const videoCandidates = collectVideoCandidates(streamingData);
