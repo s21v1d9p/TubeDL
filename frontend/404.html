@@ -7,7 +7,8 @@
   // GitHub Pages serves this for any unmatched path, e.g.
   //   /TubeDL/https://www.youtube.com/watch?v=xxxx
   // We stash everything after the repo name and bounce to index.html,
-  // which reads it back out of sessionStorage (see js/validate.js).
+  // which reads it back out of sessionStorage (see extractDeepLink() in
+  // js/app.bundle.js, built from frontend-src/src/app-entry.js).
   (function () {
     var parts = window.location.pathname.split('/').filter(Boolean);
     var base = '/' + (parts[0] || '') + '/';
