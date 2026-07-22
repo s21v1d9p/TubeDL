@@ -1,0 +1,6 @@
+name = "tubedl-relay"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+# Free tier: no account-level config needed beyond `wrangler login` + `wrangler deploy`.
+# 100,000 requests/day included at $0. See ../README.md for deploy steps.

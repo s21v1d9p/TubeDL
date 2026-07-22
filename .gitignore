@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output (generated fresh by CI on every push -- see .github/workflows/deploy.yml)
+frontend/js/app.bundle.js
+frontend/js/app.bundle.js.map
+frontend/js/ffmpeg-worker.js
+frontend/js/ffmpeg-worker.js.map
+
+# Test artifacts
+frontend-src/test/output/
+frontend-src/test/browser/bundle.js
+frontend-src/test/browser/bundle.js.map
+
+# Wrangler
+worker/.wrangler/
+worker/.dev.vars
+
+# OS/editor
+.DS_Store
+*.log
+
+# Playwright
+.playwright-mcp/

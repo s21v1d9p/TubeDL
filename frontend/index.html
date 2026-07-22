@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TubeDL — YouTube Downloader</title>
+<meta name="description" content="Paste a YouTube link, pick a quality, download. Runs entirely in your browser." />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>Tube<span class="accent">DL</span></h1>
+      <p class="tagline">Paste a YouTube link. Pick a quality. Download.</p>
+    </header>
+
+    <main>
+      <form id="url-form" class="url-form" autocomplete="off">
+        <input
+          id="url-input"
+          type="text"
+          name="url"
+          placeholder="Paste a YouTube URL (or video ID) and press Enter…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button type="submit" id="fetch-btn">Fetch</button>
+      </form>
+
+      <p id="error-box" class="error-box" hidden></p>
+
+      <div id="loading" class="loading" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="loading-label">Loading video info…</span>
+      </div>
+
+      <section id="result" class="result" hidden>
+        <div class="video-meta">
+          <img id="thumb" class="thumb" alt="Video thumbnail" />
+          <div class="video-meta-text">
+            <h2 id="title"></h2>
+            <p id="meta-line" class="meta-line"></p>
+          </div>
+        </div>
+
+        <div class="format-group">
+          <h3>Video</h3>
+          <div id="video-formats" class="format-grid"></div>
+        </div>
+
+        <div class="format-group">
+          <h3>Audio only</h3>
+          <div id="audio-formats" class="format-grid"></div>
+        </div>
+
+        <div id="progress" class="progress" hidden>
+          <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+          <p id="progress-label" class="progress-label"></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>
+        Runs entirely in your browser — your video is never uploaded to any server.
+        For personal use with content you have the right to download only.
+      </p>
+    </footer>
+  </div>
+
+  <script type="module" src="js/app.bundle.js"></script>
+</body>
+</html>

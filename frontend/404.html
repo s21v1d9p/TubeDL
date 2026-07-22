@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TubeDL</title>
+<script>
+  // GitHub Pages serves this for any unmatched path, e.g.
+  //   /TubeDL/https://www.youtube.com/watch?v=xxxx
+  // We stash everything after the repo name and bounce to index.html,
+  // which reads it back out of sessionStorage (see js/validate.js).
+  (function () {
+    var parts = window.location.pathname.split('/').filter(Boolean);
+    var base = '/' + (parts[0] || '') + '/';
+    var rest = window.location.pathname.slice(base.length) + window.location.search + window.location.hash;
+    sessionStorage.setItem('tubedl_deeplink', rest);
+    window.location.replace(base);
+  })();
+</script>
+</head>
+<body>
+  Redirecting&hellip;
+</body>
+</html>
