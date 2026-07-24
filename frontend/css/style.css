@@ -14,6 +14,20 @@
   box-sizing: border-box;
 }
 
+/*
+ * Without this, elements whose class rules set their own `display` (e.g.
+ * `.loading { display: flex; }`) silently override the browser's built-in
+ * `[hidden] { display: none; }` rule -- author stylesheets always beat the
+ * user-agent stylesheet regardless of selector specificity, so the `hidden`
+ * IDL attribute/property stops actually hiding anything visually even though
+ * it's set correctly. Confirmed empirically: `#loading.hidden === true` while
+ * `getComputedStyle(#loading).display === "flex"`. This is why the spinner
+ * looked permanently stuck regardless of the (correct) JS state.
+ */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
